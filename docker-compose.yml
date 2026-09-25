@@ -1,0 +1,33 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  ml-service:
+    build: ./ml-service
+    restart: unless-stopped
+    env_file:
+      - ./ml-service/.env
+    ports:
+      - "8000:8000"
+
+  api:
+    build: ./api
+    restart: unless-stopped
+    env_file:
+      - ./api/.env
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/manthulir
+      ML_SERVICE_URL: http://ml-service:8000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo
+      - ml-service
+
+volumes:
+  mongo-data:

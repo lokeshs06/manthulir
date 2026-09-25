@@ -1,0 +1,21 @@
+{
+  "version": "prepared-dataset",
+  "labels": [
+    "tomato_aphid",
+    "tomato_bacterial_spot",
+    "tomato_beet_armyworm",
+    "tomato_early_blight",
+    "tomato_fruit_borer",
+    "tomato_fruit_fly",
+    "tomato_healthy",
+    "tomato_late_blight",
+    "tomato_leaf_mold",
+    "tomato_mosaic_virus",
+    "tomato_septoria_leaf_spot",
+    "tomato_spider_mite",
+    "tomato_thrips",
+    "tomato_tobacco_cutworm",
+    "tomato_whitefly",
+    "tomato_yellow_leaf_curl_virus"
+  ]
+}

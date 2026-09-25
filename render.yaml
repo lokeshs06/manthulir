@@ -1,0 +1,102 @@
+# Render Blueprint — deploys both services in one go.
+# In the Render dashboard: New > Blueprint > select this repo.
+#
+# Fields marked `sync: false` need a value typed in manually during blueprint
+# setup (Render won't invent these for you, and several are secrets that
+# should never be committed to git).
+#
+# IMPORTANT: ML_SERVICE_INTERNAL_KEY (on manthulir-api) and
+# INTERNAL_API_KEY (on manthulir-ml) MUST be set to the exact same
+# value — this is how the API authenticates to the ML service. Pick one
+# value and paste it into both fields.
+#
+# IMPORTANT: ML_SERVICE_URL should be set to the ml service's own Render URL
+# once it's deployed (visible on its dashboard page, looks like
+# https://manthulir-ml.onrender.com) — deploy the ML service first,
+# copy its URL, then set this on the API service.
+
+services:
+  - type: web
+    name: manthulir-api
+    runtime: node
+    plan: free
+    rootDir: api
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false # MongoDB Atlas connection string
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: BCRYPT_SALT_ROUNDS
+        value: "10"
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false # your Netlify site URL, e.g. https://your-site.netlify.app (comma-separate multiple origins)
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: ML_SERVICE_URL
+        sync: false # set after the ml service below is deployed — see note above
+      - key: ML_SERVICE_INTERNAL_KEY
+        sync: false # must match INTERNAL_API_KEY on manthulir-ml below
+      - key: ML_CONFIDENCE_THRESHOLD
+        value: "0.70"
+      - key: SEED_ADMIN_NAME
+        value: Manthulir Admin
+      - key: SEED_ADMIN_PHONE
+        sync: false
+      - key: SEED_ADMIN_PASSWORD
+        generateValue: true
+      - key: LOG_LEVEL
+        value: info
+      # WhatsApp channel is optional — only set these if you're wiring up
+      # the Meta WhatsApp Business API integration (see README).
+      - key: WHATSAPP_VERIFY_TOKEN
+        sync: false
+      - key: WHATSAPP_APP_SECRET
+        sync: false
+      - key: WHATSAPP_ACCESS_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_GRAPH_API_VERSION
+        value: v20.0
+
+  - type: web
+    name: manthulir-ml
+    runtime: python
+    plan: free
+    rootDir: ml-service
+    # torch/torchvision from the default PyPI index bundle full CUDA
+    # libraries even for CPU-only use (multi-GB) — install the CPU-only
+    # build first from PyTorch's own index; the plain `pip install -r
+    # requirements.txt` that follows then sees the pinned versions already
+    # satisfied and won't re-fetch the CUDA build.
+    buildCommand: pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1 torchvision==0.20.1 && pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: INTERNAL_API_KEY
+        sync: false # must match ML_SERVICE_INTERNAL_KEY on manthulir-api above
+      - key: MOCK_MODEL
+        value: "false"
+      - key: MODEL_PATH
+        value: artifacts/model.torchscript.pt
+      - key: LABELS_PATH
+        value: artifacts/labels.json
+      - key: MODEL_VERSION
+        value: tomato-disease-pest-2026-09-22
+      - key: MAX_UPLOAD_MB
+        value: "5"

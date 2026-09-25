@@ -1,0 +1,34 @@
+import mongoose from 'mongoose';
+import { ApiError } from '../utils/ApiError.js';
+import { sendError } from '../utils/response.js';
+import { logger } from '../utils/logger.js';
+import { env } from '../config/env.js';
+
+export const notFoundHandler = (req, res) => {
+  sendError(res, { statusCode: 404, code: 'NOT_FOUND', message: 'Route not found' });
+};
+
+// eslint-disable-next-line no-unused-vars
+export const errorHandler = (err, req, res, next) => {
+  if (err instanceof ApiError) {
+    return sendError(res, { statusCode: err.statusCode, code: err.code, message: err.message });
+  }
+
+  if (err instanceof mongoose.Error.ValidationError) {
+    return sendError(res, { statusCode: 400, code: 'VALIDATION_ERROR', message: err.message });
+  }
+
+  if (err instanceof mongoose.Error.CastError) {
+    return sendError(res, { statusCode: 400, code: 'INVALID_ID', message: `Invalid ${err.path}` });
+  }
+
+  if (err.code === 11000) {
+    return sendError(res, { statusCode: 409, code: 'DUPLICATE_KEY', message: 'A record with this value already exists' });
+  }
+
+  if (!env.isTest) {
+    logger.error({ err }, err.message || 'Unhandled error');
+  }
+
+  return sendError(res, { statusCode: 500, code: 'INTERNAL_ERROR', message: 'Something went wrong' });
+};

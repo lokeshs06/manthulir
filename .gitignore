@@ -1,0 +1,20 @@
+node_modules/
+.env
+*.log
+coverage/
+dist/
+.mongo-data/
+
+# ML service
+ml-service/venv/
+ml-service/__pycache__/
+ml-service/**/__pycache__/
+# The deployed production model IS committed (ml-service/artifacts/model.torchscript.pt)
+# — the running service needs it in the repo to have anything to load on
+# deploy. Only training-time checkpoints/experiments are excluded below.
+ml-service/artifacts/best_model.pt
+ml-service/data/
+ml-service/training/data/
+.pytest_cache/
+
+.DS_Store
