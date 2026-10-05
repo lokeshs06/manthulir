@@ -37,12 +37,44 @@ export const createApp = () => {
 
   app.disable('x-powered-by');
   app.use(helmet());
-  app.use(
-    cors({
-      origin: env.corsAllowedOrigins,
-      credentials: true,
-    }),
-  );
+  const rawOrigins = Array.isArray(env.corsAllowedOrigins)
+    ? env.corsAllowedOrigins
+    : [env.corsAllowedOrigins];
+  const allowedOrigins = rawOrigins
+    .map((o) => (typeof o === 'string' ? o.toLowerCase().trim().replace(/\/+$/, '') : ''))
+    .filter(Boolean);
+
+  const corsOptions = {
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+
+      const normalized = origin.toLowerCase().trim().replace(/\/+$/, '');
+
+      // Match exact allowed origins (from CORS_ALLOWED_ORIGINS)
+      if (allowedOrigins.includes(normalized) || allowedOrigins.includes('*')) {
+        return callback(null, true);
+      }
+
+      // Always allow any Netlify origin (e.g. https://manthulir.netlify.app and preview deploys)
+      if (/^https:\/\/([a-z0-9-]+)\.netlify\.app$/.test(normalized)) {
+        return callback(null, true);
+      }
+
+      // Allow localhost in dev
+      if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(normalized)) {
+        return callback(null, true);
+      }
+
+      return callback(null, false);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  };
+
+  app.use(cors(corsOptions));
+  app.options('*', cors(corsOptions));
   app.use(
     express.json({
       limit: '2mb',
