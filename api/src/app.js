@@ -70,6 +70,11 @@ export const createApp = () => {
 
   app.use('/api', generalLimiter);
 
+  // Root redirect to Swagger documentation for browser visits
+  app.get('/', (req, res) => {
+    res.redirect('/api/docs');
+  });
+
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   // Raw OpenAPI JSON, for frontend codegen/tooling rather than the interactive UI.
   app.get('/api/docs.json', (req, res) => res.json(swaggerSpec));
