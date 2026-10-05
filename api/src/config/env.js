@@ -2,40 +2,61 @@ import 'dotenv/config';
 
 const nodeEnv = process.env.NODE_ENV || 'development';
 
+const cleanEnvString = (val) => {
+  if (typeof val !== 'string') return val;
+  let cleaned = val.trim();
+  if (
+    (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+    (cleaned.startsWith("'") && cleaned.endsWith("'"))
+  ) {
+    cleaned = cleaned.slice(1, -1).trim();
+  }
+  return cleaned;
+};
+
+const cleanMongoUri = (val) => {
+  let cleaned = cleanEnvString(val);
+  if (!cleaned) return cleaned;
+  if (cleaned.startsWith('MONGODB_URI=')) {
+    cleaned = cleanEnvString(cleaned.slice('MONGODB_URI='.length));
+  }
+  return cleaned;
+};
+
 export const env = {
   nodeEnv,
   isTest: nodeEnv === 'test',
   isDevelopment: nodeEnv === 'development',
   isProduction: nodeEnv === 'production',
   port: Number(process.env.PORT) || 5000,
-  apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:5000',
+  apiBaseUrl: cleanEnvString(process.env.API_BASE_URL) || 'http://localhost:5000',
 
   mongodbUri:
-    process.env.MONGODB_URI ||
+    cleanMongoUri(process.env.MONGODB_URI) ||
     (nodeEnv === 'test' ? undefined : 'mongodb://localhost:27017/manthulir'),
 
   jwt: {
-    accessSecret: process.env.JWT_ACCESS_SECRET,
-    refreshSecret: process.env.JWT_REFRESH_SECRET,
-    accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
-    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+    accessSecret: cleanEnvString(process.env.JWT_ACCESS_SECRET),
+    refreshSecret: cleanEnvString(process.env.JWT_REFRESH_SECRET),
+    accessExpiresIn: cleanEnvString(process.env.JWT_ACCESS_EXPIRES_IN) || '15m',
+    refreshExpiresIn: cleanEnvString(process.env.JWT_REFRESH_EXPIRES_IN) || '7d',
   },
   bcryptSaltRounds: Number(process.env.BCRYPT_SALT_ROUNDS) || 10,
 
   corsAllowedOrigins: (process.env.CORS_ALLOWED_ORIGINS || 'http://localhost:3000')
     .split(',')
-    .map((origin) => origin.trim())
+    .map((origin) => cleanEnvString(origin))
     .filter(Boolean),
 
   cloudinary: {
-    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
-    apiKey: process.env.CLOUDINARY_API_KEY,
-    apiSecret: process.env.CLOUDINARY_API_SECRET,
+    cloudName: cleanEnvString(process.env.CLOUDINARY_CLOUD_NAME),
+    apiKey: cleanEnvString(process.env.CLOUDINARY_API_KEY),
+    apiSecret: cleanEnvString(process.env.CLOUDINARY_API_SECRET),
   },
 
   mlService: {
-    url: process.env.ML_SERVICE_URL || 'http://localhost:8000',
-    internalKey: process.env.ML_SERVICE_INTERNAL_KEY || 'dev-internal-key',
+    url: cleanEnvString(process.env.ML_SERVICE_URL) || 'http://localhost:8000',
+    internalKey: cleanEnvString(process.env.ML_SERVICE_INTERNAL_KEY) || 'dev-internal-key',
     confidenceThreshold: Number(process.env.ML_CONFIDENCE_THRESHOLD) || 0.7,
   },
 
