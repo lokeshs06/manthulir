@@ -38,6 +38,7 @@ export const CertificationUploadModal = ({ currentStatus, onClose }) => {
       const processedFile = await compressImage(documentFile);
 
       const formData = new FormData();
+      formData.append('file', processedFile);
       formData.append('document', processedFile);
       if (certificateNumber.trim()) {
         formData.append('certificateNumber', certificateNumber.trim());

@@ -35,7 +35,15 @@ export const detectPest = async (userId, file, { consentForTraining }) => {
   const profile = await getProfileOrThrow(userId);
 
   // Step 2: upload to Cloudinary (compression handled by the upload transform).
-  const { url, publicId } = await uploadImageBuffer(file.buffer, 'pest-detections');
+  let url;
+  let publicId;
+  try {
+    const uploadRes = await uploadImageBuffer(file.buffer, 'pest-detections');
+    url = uploadRes.url;
+    publicId = uploadRes.publicId;
+  } catch (cloudErr) {
+    throw ApiError.internal('IMAGE_UPLOAD_FAILED', `Failed to upload image to storage: ${cloudErr.message}`);
+  }
 
   // Step 3: call the ML service (15s timeout, 1 retry — see mlClient.service.js).
   let mlResult;

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { requireRole } from '../middlewares/requireRole.middleware.js';
 import { validate } from '../middlewares/validate.middleware.js';
-import { upload } from '../middlewares/upload.middleware.js';
+import { upload, uploadSingleFlexible } from '../middlewares/upload.middleware.js';
 import { pestDetectionLimiter } from '../middlewares/rateLimiters.js';
 import { detectPestSchema, pestFeedbackSchema, createPestRemedySchema, updatePestRemedySchema } from '../validators/pest.validator.js';
 import {
@@ -41,7 +41,7 @@ router.post(
   authenticate,
   requireRole('farmer'),
   pestDetectionLimiter,
-  upload.single('file'),
+  uploadSingleFlexible,
   validate(detectPestSchema),
   detectPestHandler,
 );

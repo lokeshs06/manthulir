@@ -91,6 +91,7 @@ export const CreateLogModal = ({ onClose, onSuccess }) => {
       }
 
       compressedFiles.forEach((file) => {
+        formData.append('file', file);
         formData.append('images', file);
       });
 

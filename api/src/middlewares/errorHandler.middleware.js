@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import multer from 'multer';
 import { ApiError } from '../utils/ApiError.js';
 import { sendError } from '../utils/response.js';
 import { logger } from '../utils/logger.js';
@@ -8,10 +9,22 @@ export const notFoundHandler = (req, res) => {
   sendError(res, { statusCode: 404, code: 'NOT_FOUND', message: 'Route not found' });
 };
 
-// eslint-disable-next-line no-unused-vars
 export const errorHandler = (err, req, res, next) => {
+  const origin = req.headers?.origin;
+  if (origin && !res.getHeader('Access-Control-Allow-Origin')) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+
   if (err instanceof ApiError) {
     return sendError(res, { statusCode: err.statusCode, code: err.code, message: err.message });
+  }
+
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return sendError(res, { statusCode: 400, code: 'FILE_TOO_LARGE', message: 'File size must be 5MB or smaller' });
+    }
+    return sendError(res, { statusCode: 400, code: 'UPLOAD_ERROR', message: err.message });
   }
 
   if (err instanceof mongoose.Error.ValidationError) {

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { requireRole } from '../middlewares/requireRole.middleware.js';
 import { validate } from '../middlewares/validate.middleware.js';
-import { upload } from '../middlewares/upload.middleware.js';
+import { upload, uploadSingleFlexible } from '../middlewares/upload.middleware.js';
 import { updateFarmerProfileSchema } from '../validators/farmer.validator.js';
 import {
   getMyProfileHandler,
@@ -67,7 +67,7 @@ router.get('/me/timeline', authenticate, requireRole('farmer'), getMyTimelineHan
  *     responses:
  *       200: { description: Certification submitted, pending review }
  */
-router.post('/me/certification', authenticate, requireRole('farmer'), upload.single('file'), submitCertificationHandler);
+router.post('/me/certification', authenticate, requireRole('farmer'), uploadSingleFlexible, submitCertificationHandler);
 
 /**
  * @openapi

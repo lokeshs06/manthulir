@@ -68,6 +68,7 @@ export const PestPhotoUploader = ({ onScanComplete, onScanError }) => {
     setLocalError(null);
 
     const formData = new FormData();
+    formData.append('file', selectedFile);
     formData.append('image', selectedFile);
     formData.append('consentForTraining', consentForTraining ? 'true' : 'false');
 
