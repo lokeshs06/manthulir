@@ -45,9 +45,10 @@ export const LoginPage = () => {
     setIsSubmitting(true);
     try {
       const user = await login(data);
-      const targetPath = location.state?.from?.pathname || (
-        user.role === 'farmer' ? '/farmer' : user.role === 'buyer' ? '/buyer' : '/admin'
-      );
+      const fromPath = location.state?.from?.pathname;
+      const targetPath = (fromPath && fromPath !== '/login' && fromPath !== '/register')
+        ? fromPath
+        : (user.role === 'farmer' ? '/farmer' : user.role === 'buyer' ? '/buyer' : '/admin');
       navigate(targetPath, { replace: true });
     } catch (err) {
       setServerError(getApiErrorMessage(err));
@@ -172,17 +173,24 @@ export const LoginPage = () => {
             <div className="flex flex-wrap gap-1.5">
               <button
                 type="button"
+                onClick={() => quickFill('9000000001', 'samplePass123')}
+                className="text-[11px] px-2.5 py-1.5 rounded-lg bg-agri-50 hover:bg-agri-100 text-agri-800 font-medium border border-agri-200 transition-colors"
+              >
+                🌾 விவசாயி (Murugan)
+              </button>
+              <button
+                type="button"
+                onClick={() => quickFill('9000000002', 'samplePass123')}
+                className="text-[11px] px-2.5 py-1.5 rounded-lg bg-agri-50 hover:bg-agri-100 text-agri-800 font-medium border border-agri-200 transition-colors"
+              >
+                🌾 விவசாயி (Kalaiselvi)
+              </button>
+              <button
+                type="button"
                 onClick={() => quickFill('9000000101', 'farmerPass123')}
                 className="text-[11px] px-2.5 py-1.5 rounded-lg bg-agri-50 hover:bg-agri-100 text-agri-800 font-medium border border-agri-200 transition-colors"
               >
                 🌾 விவசாயி (Muthu)
-              </button>
-              <button
-                type="button"
-                onClick={() => quickFill('9000000102', 'farmerPass123')}
-                className="text-[11px] px-2.5 py-1.5 rounded-lg bg-agri-50 hover:bg-agri-100 text-agri-800 font-medium border border-agri-200 transition-colors"
-              >
-                🌾 விவசாயி (Kaveri)
               </button>
               <button
                 type="button"

@@ -57,7 +57,8 @@ export const refresh = async (refreshToken) => {
     throw ApiError.unauthorized('INVALID_REFRESH_TOKEN', 'Invalid or expired refresh token');
   }
 
-  return issueTokenPair(user);
+  const tokens = await issueTokenPair(user);
+  return { ...tokens, user };
 };
 
 export const logout = async (userId) => {

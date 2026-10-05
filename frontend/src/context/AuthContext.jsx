@@ -16,12 +16,15 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await authApi.getMe();
       if (res.success && res.data) {
-        setUser(res.data.user);
-        setProfile(res.data.profile || null);
-        if (res.data.user?.preferredLanguage && res.data.user.preferredLanguage !== i18n.language) {
-          i18n.changeLanguage(res.data.user.preferredLanguage);
+        const userData = res.data.user || (res.data?.id ? res.data : null);
+        if (userData) {
+          setUser(userData);
+          setProfile(res.data.profile || null);
+          if (userData?.preferredLanguage && userData.preferredLanguage !== i18n.language) {
+            i18n.changeLanguage(userData.preferredLanguage);
+          }
+          return userData;
         }
-        return res.data.user;
       }
     } catch {
       setUser(null);
@@ -41,7 +44,10 @@ export const AuthProvider = ({ children }) => {
           if (res.success && res.data) {
             tokenStorage.setAccessToken(res.data.accessToken);
             tokenStorage.setRefreshToken(res.data.refreshToken);
-            setUser(res.data.user);
+            const userData = res.data.user || (res.data?.id ? res.data : null);
+            if (userData) {
+              setUser(userData);
+            }
             await loadUser();
           }
         } catch {
@@ -68,7 +74,11 @@ export const AuthProvider = ({ children }) => {
       if (loggedInUser.preferredLanguage) {
         i18n.changeLanguage(loggedInUser.preferredLanguage);
       }
-      await loadUser();
+      try {
+        await loadUser();
+      } catch (e) {
+        console.warn('loadUser error during login:', e);
+      }
       return loggedInUser;
     }
     throw new Error('Login failed');
@@ -91,7 +101,11 @@ export const AuthProvider = ({ children }) => {
       if (preferredLanguage) {
         i18n.changeLanguage(preferredLanguage);
       }
-      await loadUser();
+      try {
+        await loadUser();
+      } catch (e) {
+        console.warn('loadUser error during register:', e);
+      }
       return registeredUser;
     }
     throw new Error('Registration failed');

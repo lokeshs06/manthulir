@@ -20,12 +20,12 @@ export const GuestGuard = () => {
 
   if (isAuthenticated) {
     const origin = location.state?.from?.pathname;
-    if (origin) {
+    if (origin && origin !== '/login' && origin !== '/register') {
       return <Navigate to={origin} replace />;
     }
-    if (user.role === 'farmer') return <Navigate to="/farmer" replace />;
-    if (user.role === 'buyer') return <Navigate to="/buyer" replace />;
-    if (user.role === 'admin') return <Navigate to="/admin" replace />;
+    if (user?.role === 'farmer') return <Navigate to="/farmer" replace />;
+    if (user?.role === 'buyer') return <Navigate to="/buyer" replace />;
+    if (user?.role === 'admin') return <Navigate to="/admin" replace />;
     return <Navigate to="/" replace />;
   }
 
