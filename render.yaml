@@ -21,12 +21,16 @@ services:
     runtime: node
     plan: free
     rootDir: api
-    buildCommand: npm install
+    buildCommand: npm install --omit=dev
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:
+      - key: NODE_VERSION
+        value: "20"
       - key: NODE_ENV
         value: production
+      - key: API_BASE_URL
+        sync: false # set to your Render service URL, e.g. https://manthulir-api.onrender.com
       - key: MONGODB_URI
         sync: false # MongoDB Atlas connection string
       - key: JWT_ACCESS_SECRET

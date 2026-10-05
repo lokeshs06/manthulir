@@ -1,0 +1,32 @@
+# Root-level Netlify config for the monorepo.
+# Netlify only looks for netlify.toml at the repository root (or at the
+# configured base directory). This file lives at the root so that connecting
+# the repo in the Netlify UI requires no extra configuration.
+
+[build]
+  base    = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+# Client-side routing (react-router-dom's BrowserRouter) — without this,
+# refreshing or deep-linking to any non-root route 404s on Netlify's static
+# host, since it looks for a literal file/folder at that path.
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options            = "DENY"
+    X-Content-Type-Options     = "nosniff"
+    Referrer-Policy            = "strict-origin-when-cross-origin"
+    Permissions-Policy         = "camera=(), microphone=(), geolocation=()"
+
+# Hashed build assets (Vite adds a content hash to every filename in
+# assets/) are safe to cache forever — a new deploy ships new filenames.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
