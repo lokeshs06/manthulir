@@ -4,8 +4,10 @@ import { ApiError } from '../utils/ApiError.js';
 import { uploadImageBuffer } from './cloudinaryUpload.service.js';
 
 export const getMyFarmerProfile = async (userId) => {
-  const profile = await FarmerProfile.findOne({ userId });
-  if (!profile) throw ApiError.notFound('FARMER_PROFILE_NOT_FOUND', 'Farmer profile not found');
+  let profile = await FarmerProfile.findOne({ userId });
+  if (!profile) {
+    profile = await FarmerProfile.create({ userId });
+  }
   return profile;
 };
 

@@ -13,8 +13,10 @@ const KVK_ADVICE_TA =
   'உறுதியான கண்டறிதலுக்கு, உங்கள் அருகிலுள்ள கிருஷி விஞ்ஞான் கேந்திரா (KVK) அல்லது வேளாண் விரிவாக்க அதிகாரியை தொடர்பு கொள்ளவும்.';
 
 const getProfileOrThrow = async (userId) => {
-  const profile = await FarmerProfile.findOne({ userId });
-  if (!profile) throw ApiError.notFound('FARMER_PROFILE_NOT_FOUND', 'Farmer profile not found');
+  let profile = await FarmerProfile.findOne({ userId });
+  if (!profile) {
+    profile = await FarmerProfile.create({ userId });
+  }
   return profile;
 };
 

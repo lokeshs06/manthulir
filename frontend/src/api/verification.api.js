@@ -3,11 +3,7 @@ import { apiClient } from './client';
 export const verificationApi = {
   // Create a log entry with compressed photos (multipart/form-data)
   createLog: async (formData) => {
-    const res = await apiClient.post('/verification-logs', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const res = await apiClient.post('/verification-logs', formData);
     return res.data;
   },
 
@@ -37,11 +33,7 @@ export const verificationApi = {
 
   // Upload certification document (multipart/form-data)
   uploadCertification: async (formData) => {
-    const res = await apiClient.post('/farmers/me/certification', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const res = await apiClient.post('/farmers/me/certification', formData);
     return res.data;
   },
 };

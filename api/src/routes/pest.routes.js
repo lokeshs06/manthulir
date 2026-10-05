@@ -57,6 +57,7 @@ router.post(
  *       200: { description: List of detections }
  */
 router.get('/detections', authenticate, requireRole('farmer'), listMyDetectionsHandler);
+router.get('/detections/me', authenticate, requireRole('farmer'), listMyDetectionsHandler);
 
 /**
  * @openapi

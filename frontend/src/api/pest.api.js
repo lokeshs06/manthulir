@@ -6,11 +6,7 @@ export const pestApi = {
    * @param {FormData} formData - Contains 'image' file and 'consentForTraining' ('true'|'false')
    */
   detectPest: async (formData) => {
-    const res = await apiClient.post('/pests/detect', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const res = await apiClient.post('/pests/detect', formData);
     return res.data;
   },
 
@@ -18,7 +14,7 @@ export const pestApi = {
    * Get paginated detection history for current farmer
    */
   getMyDetections: async (params = {}) => {
-    const res = await apiClient.get('/pests/detections/me', { params });
+    const res = await apiClient.get('/pests/detections', { params });
     return res.data;
   },
 

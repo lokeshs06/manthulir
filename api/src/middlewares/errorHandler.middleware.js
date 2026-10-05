@@ -27,6 +27,10 @@ export const errorHandler = (err, req, res, next) => {
     return sendError(res, { statusCode: 400, code: 'UPLOAD_ERROR', message: err.message });
   }
 
+  if (err.message && (err.message.toLowerCase().includes('boundary') || err.message.toLowerCase().includes('multipart'))) {
+    return sendError(res, { statusCode: 400, code: 'INVALID_MULTIPART', message: err.message });
+  }
+
   if (err instanceof mongoose.Error.ValidationError) {
     return sendError(res, { statusCode: 400, code: 'VALIDATION_ERROR', message: err.message });
   }
